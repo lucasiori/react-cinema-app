@@ -3,11 +3,15 @@ import React, { useState } from 'react';
 import './MainContent.scss';
 import Slideshow from '../slide-show/Slideshow';
 import Paginate from '../paginate/Paginate';
+import Grid from '../grid/Grid';
 
 const images = [
-  { url: 'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg' },
-  { url: 'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg' },
-  { url: 'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg' }
+  { url: 'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg', rating: 7.5 },
+  { url: 'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg', rating: 8.5 },
+  { url: 'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg', rating: 7.8 },
+  { url: 'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg', rating: 9.7 },
+  { url: 'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg', rating: 6.5 },
+  { url: 'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg', rating: 8.5 }
 ];
 
 const MainContent = () => {
@@ -32,7 +36,7 @@ const MainContent = () => {
         </div>
       </div>
 
-      {/* display grid component */}
+      <Grid images={images} />
     </div>
   );
 };
