@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import './Header.scss';
 import logo from '../../assets/cinema-logo.svg';
+import { getMovies, setMovieType, setResponsePageNumber } from '../../redux/actions/movies';
 
 const HEADER_LIST = [
   {
@@ -30,9 +33,10 @@ const HEADER_LIST = [
   }
 ];
 
-const Header = () => {
+const Header = ({ page, totalPages, getMovies, setMovieType, setResponsePageNumber }) => {
   const [navClass, setNavClass] = useState(false);
   const [menuClass, setMenuClass] = useState(false);
+  const [type, setType] = useState('now_playing');
 
   const toggleMenu = () => {
     setNavClass(!navClass);
@@ -44,6 +48,16 @@ const Header = () => {
       document.body.classList.add('header-nav-open');
     }
   };
+
+  const setMovieTypeUrl = (type) => {
+    setType(type);
+    setMovieType(type);
+  };
+
+  useEffect(() => {
+    getMovies(type, page);
+    setResponsePageNumber(page, totalPages);
+  }, [type]);
 
   return (
     <>
@@ -62,7 +76,7 @@ const Header = () => {
 
           <ul className={`header-nav ${navClass ? 'header-mobile-nav' : ''}`}>
             {HEADER_LIST.map((data) => (
-              <li key={data.id} className="header-nav-item">
+              <li key={data.id} className={`header-nav-item ${data.type === type ? 'active-item' : ''}`} onClick={() => setMovieTypeUrl(data.type)}>
                 <span className="header-list-name">
                   <i className={data.iconClass}></i>
                 </span>
@@ -79,4 +93,17 @@ const Header = () => {
   );
 };
 
-export default Header;
+Header.propTypes = {
+  page: PropTypes.number,
+  totalPages: PropTypes.number,
+  getMovies: PropTypes.func,
+  setMovieType: PropTypes.func,
+  setResponsePageNumber: PropTypes.func
+};
+
+const mapStateToProps = (state) => ({
+  page: state.movies.page,
+  totalPages: state.movies.totalPages
+});
+
+export default connect(mapStateToProps, { getMovies, setMovieType, setResponsePageNumber })(Header);
