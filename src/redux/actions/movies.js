@@ -1,5 +1,5 @@
-import { MOVIE_API_URL, SEARCH_API_URL } from '../../services/movies.service';
-import { LOAD_MORE_RESULTS, MOVIE_LIST, MOVIE_TYPE, SET_ERROR, RESPONSE_PAGE, SEARCH_QUERY, SEARCH_RESULTS } from '../types';
+import { MOVIE_API_URL, MOVIE_CREDITS_URL, MOVIE_DETAILS_URL, MOVIE_IMAGES_URL, MOVIE_REVIEWS_URL, MOVIE_VIDEOS_URL, SEARCH_API_URL } from '../../services/movies.service';
+import { CLEAR_MOVIE_DETAILS, LOAD_MORE_RESULTS, MOVIE_DETAILS, MOVIE_LIST, MOVIE_TYPE, SET_ERROR, RESPONSE_PAGE, SEARCH_QUERY, SEARCH_RESULTS } from '../types';
 
 export const getMovies = (type, pageNumber) => async (dispatch) => {
   try {
@@ -43,6 +43,30 @@ export const setResults = (query) => async (dispatch) => {
       dispatchMethod(SET_ERROR, error.response.data.message, dispatch);
     }
   }
+};
+
+export const movieDetails = (id) => async (dispatch) => {
+  try {
+    const details = await MOVIE_DETAILS_URL(id);
+    const credits = await MOVIE_CREDITS_URL(id);
+    const images = await MOVIE_IMAGES_URL(id);
+    const videos = await MOVIE_VIDEOS_URL(id);
+    const reviews = await MOVIE_REVIEWS_URL(id);
+
+    const response = await Promise.all([details, credits, images, videos, reviews])
+      .then((values) => Promise.all(values.map((value) => value.data)))
+      .then((values) => values);
+
+    dispatchMethod(MOVIE_DETAILS, response, dispatch);
+  } catch (error) {
+    if (error.response) {
+      dispatchMethod(SET_ERROR, error.response.data.message, dispatch);
+    }
+  }
+};
+
+export const clearMovieDetails = () => async (dispatch) => {
+  dispatchMethod(CLEAR_MOVIE_DETAILS, [], dispatch);
 };
 
 export const setResponsePageNumber = (page, totalPages) => async (dispatch) => {
