@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
 
 import './Crew.scss';
+import { IMAGE_URL } from '../../../../services/movies.service';
 
-const Crew = () => {
+const Crew = ({ movie }) => {
+  const [credits] = useState(movie[1]);
+
   return (
     <>
       <div className="cast">
@@ -17,14 +23,16 @@ const Crew = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                <img src="http://placehold.it/54x81" alt="" />
-              </td>
-              <td>Alan Silvestri</td>
-              <td>Sound</td>
-              <td>Original Music Composer</td>
-            </tr>
+            {credits.crew.map((data) => (
+              <tr key={uuidv4()}>
+                <td>
+                  <img src={data.profile_path ? `${IMAGE_URL}${data.profile_path}` : 'http://placehold.it/54x81'} alt="" />
+                </td>
+                <td>{data.name}</td>
+                <td>{data.department}</td>
+                <td>{data.job}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -32,4 +40,12 @@ const Crew = () => {
   );
 };
 
-export default Crew;
+Crew.propTypes = {
+  movie: PropTypes.array
+};
+
+const mapStateToProps = (state) => ({
+  movie: state.movies.movie
+});
+
+export default connect(mapStateToProps, {})(Crew);

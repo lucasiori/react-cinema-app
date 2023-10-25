@@ -1,46 +1,51 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
 
 import './Overview.scss';
+import { IMAGE_URL } from '../../../../services/movies.service';
 
-const Overview = () => {
+const Overview = ({ movie }) => {
   const [items, setItems] = useState([]);
+  const [details] = useState(movie[0]);
+  const [credits] = useState(movie[1]);
 
   useEffect(() => {
     const detailItems = [
       {
         id: 0,
         name: 'Tagline',
-        value: 'Part of the journey is the end'
+        value: details.tagline
       },
       {
         id: 1,
         name: 'Budget',
-        value: `${numberFormatter(356000000, 1)}`
+        value: `${numberFormatter(details.budget, 1)}`
       },
       {
         id: 2,
         name: 'Revenue',
-        value: `${numberFormatter(28000000000, 1)}`
+        value: `${numberFormatter(details.revenue, 1)}`
       },
       {
         id: 3,
         name: 'Status',
-        value: 'Released'
+        value: details.status
       },
       {
         id: 4,
         name: 'Release Date',
-        value: '2019-04-24'
+        value: details.release_date
       },
       {
         id: 5,
         name: 'Run Time',
-        value: '181 min'
+        value: `${details.runtime} min`
       }
     ];
-    setItems(detailItems);
 
-    // eslint-disable-next-line
+    setItems(detailItems);
   }, []);
 
   const numberFormatter = (number, digits) => {
@@ -50,51 +55,65 @@ const Overview = () => {
       { value: 1e6, symbol: 'M' },
       { value: 1e9, symbol: 'B' }
     ];
-    const regex = /\.0+$|(\.[0-9]*[1-9])0+$/;
+
+    const regex = /\.0+$|(\.\d*[1-9])0+$/;
     let result = '';
 
-    for (let i = 0; i < symbolArray.length; i++) {
-      if (number >= symbolArray[i].value) {
-        result = (number / symbolArray[i].value).toFixed(digits).replace(regex, '$1') + symbolArray[i].symbol;
+    for (const symbol of symbolArray) {
+      if (number >= symbol.value) {
+        result = (number / symbol.value).toFixed(digits).replace(regex, '$1') + symbol.symbol;
       }
     }
+
     return result;
   };
 
   return (
     <div className="overview">
       <div className="overview-column-1">
-        <div className="description">This is a description about the movie</div>
+        <div className="description">{details.overview}</div>
 
         <div className="cast">
           <div className="div-title">Cast</div>
           <table>
             <tbody>
-              <tr>
-                <td>
-                  <img src="http://placehold.it/54x81" alt="" />
-                </td>
-                <td>Robert Downing Jr.</td>
-                <td>Iron Man</td>
-              </tr>
+              {credits.cast.map((data) => (
+                <tr key={uuidv4()}>
+                  <td>
+                    <img src={data.profile_path ? `${IMAGE_URL}${data.profile_path}` : 'http://placehold.it/54x81'} alt="" />
+                  </td>
+                  <td>{data.name}</td>
+                  <td>{data.character}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
+
       <div className="overview-column-2">
         <div className="overview-detail">
           <h6>Production Companies</h6>
-          <div className="product-company">
-            <img src="http://placehold.it/30x30" alt="" />
-            <span>Marvel</span>
-          </div>
+
+          {details.production_companies.map((company) => (
+            <div key={uuidv4()} className="product-company">
+              <img src={company.logo_path ? `${IMAGE_URL}${company.logo_path}` : 'http://placehold.it/30x30'} alt="" />
+              <span>{company.name}</span>
+            </div>
+          ))}
         </div>
+
         <div className="overview-detail">
           <h6>Language(s)</h6>
           <p>
-            <a href="!#">English</a>
+            {details.spoken_languages.map((language) => (
+              <a key={language.name} href="!#">
+                {language.name}
+              </a>
+            ))}
           </p>
         </div>
+
         {items.map((data) => (
           <div className="overview-detail" key={data.id}>
             <h6>{data.name}</h6>
@@ -108,4 +127,12 @@ const Overview = () => {
   );
 };
 
-export default Overview;
+Overview.propTypes = {
+  movie: PropTypes.array
+};
+
+const mapStateToProps = (state) => ({
+  movie: state.movies.movie
+});
+
+export default connect(mapStateToProps, {})(Overview);
