@@ -1,7 +1,8 @@
+/* eslint-disable multiline-ternary */
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
 
 import './Header.scss';
 import logo from '../../assets/cinema-logo.svg';
@@ -37,12 +38,14 @@ const HEADER_LIST = [
 const Header = ({ page, totalPages, clearMovieDetails, getMovies, setMovieType, setResponsePageNumber, setQuery, setResults }) => {
   const history = useHistory();
   const location = useLocation();
+  const detailsRoute = useRouteMatch('/:id/:name/details');
 
   const [navClass, setNavClass] = useState(false);
   const [menuClass, setMenuClass] = useState(false);
   const [type, setType] = useState('now_playing');
   const [search, setSearch] = useState('');
   const [disableSearch, setDisableSearch] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
 
   const toggleMenu = () => {
     setNavClass(!navClass);
@@ -82,12 +85,16 @@ const Header = ({ page, totalPages, clearMovieDetails, getMovies, setMovieType, 
     getMovies(type, page);
     setResponsePageNumber(page, totalPages);
 
+    if (detailsRoute || location.pathname === '/') {
+      setShowHeader(true);
+    }
+
     if (location.pathname !== '/' && location.key) {
       setDisableSearch(true);
     }
   }, [type, disableSearch, location]);
 
-  return (
+  return showHeader ? (
     <>
       <div className="header-nav-wrapper">
         <div className="header-bar" />
@@ -118,7 +125,7 @@ const Header = ({ page, totalPages, clearMovieDetails, getMovies, setMovieType, 
         </div>
       </div>
     </>
-  );
+  ) : null;
 };
 
 Header.propTypes = {
