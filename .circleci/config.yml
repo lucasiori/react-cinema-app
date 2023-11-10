@@ -15,6 +15,11 @@ executors:
   terraform-executor:
     docker:
       - image: hashicorp/terraform:1.6
+  docker-publisher:
+    environment:
+      IMAGE_NAME: lucasiori/cinemadb
+    docker:
+      - image: circleci/buildpack-deps:stretch
 
 aliases:
   - &show-current-branch-name
@@ -318,9 +323,18 @@ workflows:
                 - develop
                 - staging
                 - main
-      - terraform-validate:
+      - publish-to-docker-hub:
           requires:
             - unit-test
+          filters:
+            branches:
+              only:
+                - develop
+                - staging
+                - main
+      - terraform-validate:
+          requires:
+            - publish-to-docker-hub
           filters:
             branches:
               only:
