@@ -13,15 +13,18 @@ import Media from './media/Media';
 import Reviews from './reviews/Reviews';
 import Spinner from '../../spinner/Spinner';
 import { movieDetails } from '../../../redux/actions/movies';
+import { pathUrl } from '../../../redux/actions/routes';
 import { IMAGE_URL } from '../../../services/movies.service';
 
-const Details = ({ movieDetails, movie }) => {
+const Details = ({ movie, match, movieDetails, pathUrl }) => {
   const { id } = useParams();
 
   const [details, setDetails] = useState();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    pathUrl(match.path, match.url);
+
     if (movie.length === 0) {
       movieDetails(id);
     }
@@ -100,11 +103,13 @@ const Details = ({ movieDetails, movie }) => {
 
 Details.propTypes = {
   movie: PropTypes.array,
-  movieDetails: PropTypes.func
+  match: PropTypes.object,
+  movieDetails: PropTypes.func,
+  pathUrl: PropTypes.func
 };
 
 const mapStateToProps = (state) => ({
   movie: state.movies.movie
 });
 
-export default connect(mapStateToProps, { movieDetails })(Details);
+export default connect(mapStateToProps, { movieDetails, pathUrl })(Details);

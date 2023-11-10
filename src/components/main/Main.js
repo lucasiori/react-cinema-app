@@ -7,8 +7,9 @@ import MainContent from '../content/main-content/MainContent';
 import Spinner from '../spinner/Spinner';
 import SearchResults from '../content/search-results/SearchResults';
 import { loadMoreMovies, setResponsePageNumber } from '../../redux/actions/movies';
+import { pathUrl } from '../../redux/actions/routes';
 
-const Main = ({ page, totalPages, movieType, searchResults, loadMoreMovies, setResponsePageNumber }) => {
+const Main = ({ page, totalPages, movieType, searchResults, match, errors, loadMoreMovies, setResponsePageNumber, pathUrl }) => {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(page);
 
@@ -44,33 +45,40 @@ const Main = ({ page, totalPages, movieType, searchResults, loadMoreMovies, setR
   }, []);
 
   useEffect(() => {
+    pathUrl(match.path, match.url);
     setResponsePageNumber(currentPage, totalPages);
   }, [currentPage, totalPages]);
 
   return (
-    <div ref={mainRef} className="main" onScroll={() => handleScroll()}>
-      {loading ? <Spinner /> : <>{searchResults && searchResults.length === 0 ? <MainContent /> : <SearchResults />}</>}
-      <div ref={bottomLineRef} />
-    </div>
+    <>
+      {!errors.message && !errors.statusCode && (
+        <div ref={mainRef} className="main" onScroll={() => handleScroll()}>
+          {loading ? <Spinner /> : <>{searchResults && searchResults.length === 0 ? <MainContent /> : <SearchResults />}</>}
+          <div ref={bottomLineRef} />
+        </div>
+      )}
+    </>
   );
 };
 
 Main.propTypes = {
-  list: PropTypes.array.isRequired,
   page: PropTypes.number.isRequired,
   totalPages: PropTypes.number.isRequired,
   movieType: PropTypes.string.isRequired,
   searchResults: PropTypes.array.isRequired,
+  match: PropTypes.object,
+  errors: PropTypes.object,
   loadMoreMovies: PropTypes.func.isRequired,
-  setResponsePageNumber: PropTypes.func.isRequired
+  setResponsePageNumber: PropTypes.func.isRequired,
+  pathUrl: PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state) => ({
-  list: state.movies.list,
   page: state.movies.page,
   totalPages: state.movies.totalPages,
   movieType: state.movies.movieType,
-  searchResults: state.movies.searchResults
+  searchResults: state.movies.searchResults,
+  errors: state.errors
 });
 
-export default connect(mapStateToProps, { loadMoreMovies, setResponsePageNumber })(Main);
+export default connect(mapStateToProps, { loadMoreMovies, setResponsePageNumber, pathUrl })(Main);
